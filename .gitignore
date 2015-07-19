@@ -1,0 +1,11 @@
+.vagrant
+
+#Librarian-puppet
+.librarian
+Puppetfile.lock
+puppet/modules/*
+
+frontend/*
+backend/*
+
+!.gitkeep

@@ -1,0 +1,10 @@
+---
+:backends: 
+  - yaml
+:yaml:
+  :datadir: "/tmp/vagrant-puppet/configuration"
+:hierarchy:
+  - common
+:logger: console
+
+

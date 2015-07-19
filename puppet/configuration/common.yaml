@@ -1,0 +1,35 @@
+---
+
+nginx::nginx_vhosts:
+  'jumpdie.my':
+    listen_ip: '0.0.0.0'
+    use_default_location: false
+nginx::nginx_locations:
+  '/':
+    location: '/'
+    vhost: jumpdie.my
+    www_root: "%{node_project_dir}/public"
+  '/message':
+    location: '/message'
+    vhost: jumpdie.my
+    proxy_redirect: 'off'
+    proxy: 'http://127.0.0.1:8060'
+    proxy_set_header: 
+        - Host $host
+        - X-Real-IP $remote_addr
+        - X-Forwarded-For $proxy_add_x_forwarded_for
+        - Upgrade $http_upgrade
+        - Connection "upgrade"
+  '/control':
+    location: '/control'
+    vhost: jumpdie.my
+    proxy_redirect: 'off'
+    proxy: 'http://127.0.0.1:8060'
+    proxy_set_header: 
+        - Host $host
+        - X-Real-IP $remote_addr
+        - X-Forwarded-For $proxy_add_x_forwarded_for
+  '/control/static':
+    location: '/control/static'
+    vhost: jumpdie.my
+    www_root: "/home/%{::user}/%{::project}/backend"
