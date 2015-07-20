@@ -26,16 +26,16 @@ class { 'apt': }
 class user {
   exec { "add user":
     command => "sudo useradd -m -G sudo -s /bin/bash ${user}",
-    unless => "id -u ${user}"
+    unless  => "id -u ${user}"
   }
   exec { "set password":
     command => "echo \'${user}:${password}\' | sudo chpasswd",
     require => Exec["add user"]
   }
   file { ["/home/${user}/${project}"]:
-    ensure => directory,
-    owner => "${user}",
-    group => "${user}",
+    ensure  => directory,
+    owner   => "${user}",
+    group   => "${user}",
     require => Exec['add user']
   }
 }
@@ -43,7 +43,7 @@ class user {
 # python install
 class python-req-deps {  
   package { 'libpq-dev':
-  ensure => latest,
+  ensure  => latest,
   require => Class["apt"]
   }
 }
@@ -92,8 +92,7 @@ include ::nginx::config
 # nodejs
 class { 'nodejs':
   version => 'stable',
-  make_install => false,
-  target_dir => '/bin',
+  make_install => false
 }
 
 class nodejs-deps{
@@ -111,10 +110,14 @@ class nodejs-deps{
     require  => Class['nodejs'],
   }
 
+  package {'nodejs-legacy':
+    ensure    => latest,
+  }
+
   package {'webpack':
-    ensure   => latest,
+    ensure   => present,
     provider => 'npm',
-    require => Package['npm']
+    require  => [Package['npm'], Package['nodejs-legacy']],
   }
 
   exec { "installing deps":
