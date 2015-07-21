@@ -1,6 +1,6 @@
 [submodule "frontend"]
 	path = frontend
-	url = E:\\Dev\\repo\\Jumpdie\\frontend
+url=https://github.com/Faulik/jumpdie-frontend.git
 [submodule "backend"]
 	path = backend
-	url = E:\\Dev\\repo\\Jumpdie\\backend
+url=https://github.com/Faulik/jumpdie-backend
