@@ -7,6 +7,7 @@ $project = $::project_name
 $python_project_dir = "/home/${user}/${project}/backend"
 $node_project_dir = "/home/${user}/${project}/frontend"
 
+
 stage { 'pre':
   before => Stage["main"],
 }
@@ -22,6 +23,8 @@ class {'apt-update':
 
 
 class { 'apt': }
+
+include user
 
 class user {
   exec { "add user":
@@ -40,7 +43,12 @@ class user {
   }
 }
 
+include gcc
+
 # python install
+
+include python-req-deps
+
 class python-req-deps {  
   package { 'libpq-dev':
   ensure  => latest,
@@ -90,6 +98,9 @@ include ::nginx
 include ::nginx::config
 
 # nodejs
+
+include nodejs-deps
+
 class { 'nodejs':
   version => 'stable',
   make_install => false
@@ -137,6 +148,8 @@ class nodejs-deps{
 
 }
 
+include software
+
 class software {
   package { "git":
     ensure  => latest,
@@ -148,9 +161,3 @@ class software {
   }
 }
 
-
-include user
-include gcc
-include nodejs-deps
-include python-req-deps
-include software

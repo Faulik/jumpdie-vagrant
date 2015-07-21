@@ -11,7 +11,8 @@ requirements:
 
 //TODO
 maybe leave it for vagrant
-https://github.com/mhahn/vagrant-librarian-puppet
+[vagrant-librarian-puppet](https://github.com/mhahn/vagrant-librarian-puppet)
+
 ===================
 To make it work:
 - Pull this
