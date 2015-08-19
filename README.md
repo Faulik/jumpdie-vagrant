@@ -21,3 +21,29 @@ To make it work:
 - vagrant up
 - ???
 - Porfit
+
+===================
+Routes
+
+- serving main files + frontend
+
+  ```
+  / -> root
+  ```
+- webscokets
+
+  ```
+  -pulse serve
+  /ws/message -> http://127.0.0.1:8060
+  ```
+- api
+
+  ```
+  /api/v1/ -> http://127.0.0.1:8060  
+  ```
+- control panel
+
+  ```
+  /control -> http://127.0.0.1:8060  
+  /control/static -> www_root: /Jumpide/backend
+  ```

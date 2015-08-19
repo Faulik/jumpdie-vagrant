@@ -4,6 +4,8 @@ Exec { path => "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"}
 $user = $::default_user
 $password = "1234"
 $project = $::project_name
+$user_dir = "/home/${user}"
+$project_dir = "/home/${user}/${project}"
 $python_project_dir = "/home/${user}/${project}/backend"
 $node_project_dir = "/home/${user}/${project}/frontend"
 
@@ -11,6 +13,9 @@ $node_project_dir = "/home/${user}/${project}/frontend"
 stage { 'pre':
   before => Stage["main"],
 }
+
+stage { 'last': }
+Stage['main'] -> Stage['last']
 
 class apt-update{
   exec {'apt-update':
@@ -45,6 +50,19 @@ class user {
 
 include gcc
 
+include software
+
+class software {
+  package { "git":
+    ensure  => latest,
+    require => Class["apt"]
+  }
+  package { "htop":
+    ensure  => latest,
+    require => Class["apt"]
+  }
+}
+
 # python install
 
 include python-req-deps
@@ -69,7 +87,7 @@ python::virtualenv { 'venv python3' :
   ensure       => present,
   version      => '3.4',
   requirements => "${python_project_dir}/requirements.txt",
-  venv_dir     => "/home/vagrant/venvs",
+  venv_dir     => "${user_dir}/venvs",
   owner        => $user,
   group        => $user,
   cwd          => "${python_project_dir}",
@@ -99,12 +117,12 @@ include ::nginx::config
 
 # nodejs
 
-include nodejs-deps
-
 class { 'nodejs':
-  version => 'stable',
+  version      => 'stable',
   make_install => false
 }
+
+include nodejs-deps
 
 class nodejs-deps{
   # Install global npm packages.  Update npm last.
@@ -122,7 +140,7 @@ class nodejs-deps{
   }
 
   package {'nodejs-legacy':
-    ensure    => latest,
+    ensure   => latest,
   }
 
   package {'webpack':
@@ -132,10 +150,11 @@ class nodejs-deps{
   }
 
   exec { "installing deps":
-    command => 'npm install --no-bin-links',
+    command => 'npm install --dev --no-bin-links',
     cwd     => "${node_project_dir}",
-    path    => '/usr/local/node/node-default/bin/',
-    require => Package['npm']
+    path    => '/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/node/node-default/bin/',
+    timeout => 1800,
+    require => [Package['npm'], Class['software']],
   }
 
   # Allow vagrant user to global install npm packages
@@ -145,19 +164,20 @@ class nodejs-deps{
     require => Package['npm'],
     user    => 'root',
   }
-
 }
 
-include software
-
-class software {
-  package { "git":
-    ensure  => latest,
-    require => Class["apt"]
-  }
-  package { "htop":
-    ensure  => latest,
-    require => Class["apt"]
+class launch-in-tmux{
+  exec { 'new session in tmux':
+    command => 'tmux new-session -d &&
+                tmux new-window -d "source venvs/bin/activate &&
+                                cd Jumpdie/backend &&
+                                python manage.py pulse" &&
+                tmux new-window -d "htop" ',
+    cwd     => $user_dir,
+    user    => $user
   }
 }
 
+class { 'launch-in-tmux':
+  stage => last,
+}
